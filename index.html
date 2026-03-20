@@ -2,31 +2,80 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>4D PLY Viewer</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#08080e;color:#d0d8ff;font-family:'Segoe UI',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column}
-#drop-zone{
-  position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
-  background:#08080e;z-index:100;
+body{
+  background:#08080e;
+  color:#d0d8ff;
+  font-family:"Segoe UI",sans-serif;
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
 }
-.dz-icon{width:80px;height:80px;border:2px solid #3a4aaa;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;color:#5566cc}
-.dz-title{font-size:22px;font-weight:600;color:#aab8ff;letter-spacing:1px}
-.dz-sub{font-size:13px;color:#5566aa;margin-top:-10px}
+#drop-zone{
+  position:fixed;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  padding:24px;
+  background:
+    radial-gradient(circle at top, rgba(76,104,255,.18), transparent 32%),
+    #08080e;
+  z-index:100;
+  text-align:center;
+}
+.dz-icon{
+  width:80px;
+  height:80px;
+  border:2px solid #3a4aaa;
+  border-radius:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+  color:#5566cc;
+}
+.dz-title{font-size:24px;font-weight:700;color:#aab8ff;letter-spacing:1px}
+.dz-sub{font-size:14px;color:#7182d6;max-width:560px;line-height:1.6}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .pick-btn{
-  background:rgba(70,90,220,0.2);border:1.5px solid rgba(100,130,255,0.5);
-  color:#aab8ff;padding:12px 32px;border-radius:12px;font-size:15px;cursor:pointer;
-  transition:all .2s;letter-spacing:.5px
+  background:rgba(70,90,220,0.2);
+  border:1.5px solid rgba(100,130,255,0.5);
+  color:#aab8ff;
+  padding:12px 22px;
+  border-radius:12px;
+  font-size:15px;
+  cursor:pointer;
+  transition:all .2s;
+  letter-spacing:.3px;
 }
 .pick-btn:hover{background:rgba(70,90,220,0.4);border-color:#7090ff}
-.dz-note{font-size:12px;color:#3a4a7a;max-width:400px;text-align:center;line-height:1.7}
+.dz-note{
+  font-size:12px;
+  color:#4d5f9c;
+  max-width:560px;
+  line-height:1.75;
+}
 
 #loading{
-  position:fixed;inset:0;background:#08080e;display:none;flex-direction:column;
-  align-items:center;justify-content:center;gap:16px;z-index:99
+  position:fixed;
+  inset:0;
+  background:#08080e;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  z-index:99
 }
 #loading h3{color:#8899ff;font-size:17px;letter-spacing:2px}
-.prog-wrap{width:320px;height:4px;background:rgba(80,100,255,.15);border-radius:4px;overflow:hidden}
+.prog-wrap{width:min(420px,80vw);height:4px;background:rgba(80,100,255,.15);border-radius:4px;overflow:hidden}
 .prog-bar{height:100%;background:linear-gradient(90deg,#3a5cdd,#7090ff);border-radius:4px;width:0%;transition:width .3s}
 #load-status{font-size:12px;color:#4455aa}
 
@@ -34,17 +83,32 @@ body{background:#08080e;color:#d0d8ff;font-family:'Segoe UI',sans-serif;height:1
 canvas{display:block;width:100%;height:100%}
 
 #hud-top{
-  position:absolute;top:16px;left:16px;
-  background:rgba(6,6,18,.8);border:1px solid rgba(80,100,200,.2);
-  border-radius:10px;padding:10px 14px;font-size:11.5px;color:#6677aa;line-height:2;
+  position:absolute;
+  top:16px;
+  left:16px;
+  background:rgba(6,6,18,.8);
+  border:1px solid rgba(80,100,200,.2);
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:11.5px;
+  color:#6677aa;
+  line-height:2;
   backdrop-filter:blur(8px)
 }
 #hud-top strong{color:#99aadd}
 
 #render-panel{
-  position:absolute;top:16px;right:16px;
-  background:rgba(6,6,18,.8);border:1px solid rgba(80,100,200,.2);
-  border-radius:10px;padding:10px 14px;backdrop-filter:blur(8px);display:flex;flex-direction:column;gap:6px
+  position:absolute;
+  top:16px;
+  right:16px;
+  background:rgba(6,6,18,.8);
+  border:1px solid rgba(80,100,200,.2);
+  border-radius:10px;
+  padding:10px 14px;
+  backdrop-filter:blur(8px);
+  display:flex;
+  flex-direction:column;
+  gap:6px
 }
 .rpanel-label{font-size:10px;color:#5566aa;letter-spacing:1px;margin-bottom:2px}
 .rb{background:transparent;border:1px solid rgba(80,110,220,.3);color:#7788cc;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;transition:all .15s}
@@ -52,58 +116,82 @@ canvas{display:block;width:100%;height:100%}
 .rb-row{display:flex;gap:5px}
 
 #bottom-bar{
-  position:absolute;bottom:0;left:0;right:0;
-  background:rgba(6,6,18,.88);border-top:1px solid rgba(80,100,200,.2);
-  padding:12px 20px;display:flex;flex-direction:column;gap:8px;backdrop-filter:blur(10px)
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  background:rgba(6,6,18,.88);
+  border-top:1px solid rgba(80,100,200,.2);
+  padding:12px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  backdrop-filter:blur(10px)
 }
-.bar-row{display:flex;align-items:center;gap:12px}
-.frame-label{font-size:12px;color:#7788bb;min-width:90px;font-family:monospace}
-#scrub{flex:1;accent-color:#5570ee;cursor:pointer;height:4px}
+.bar-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.frame-label{font-size:12px;color:#7788bb;min-width:110px;font-family:monospace}
+#scrub{flex:1;accent-color:#5570ee;cursor:pointer;height:4px;min-width:160px}
 .btn{background:rgba(60,80,200,.2);border:1px solid rgba(80,110,220,.35);color:#99aadd;border-radius:7px;padding:5px 14px;cursor:pointer;font-size:12px;transition:all .15s}
 .btn:hover,.btn.on{background:rgba(60,80,200,.4);border-color:#6080ff;color:#bbd0ff}
 .fps-row{display:flex;align-items:center;gap:8px;font-size:11px;color:#5566aa}
 #fps-slider{accent-color:#5570ee;cursor:pointer;width:90px}
 
 #reset-btn{
-  position:absolute;bottom:16px;right:16px;z-index:10;
-  background:rgba(60,80,200,.15);border:1px solid rgba(80,110,220,.25);
-  color:#5566aa;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:11px;
+  position:absolute;
+  bottom:16px;
+  right:16px;
+  z-index:10;
+  background:rgba(60,80,200,.15);
+  border:1px solid rgba(80,110,220,.25);
+  color:#5566aa;
+  border-radius:8px;
+  padding:5px 12px;
+  cursor:pointer;
+  font-size:11px;
 }
 #reset-btn:hover{color:#99aadd;background:rgba(60,80,200,.3)}
+
+@media (max-width: 720px) {
+  #hud-top,#render-panel{top:10px}
+  #hud-top{left:10px}
+  #render-panel{right:10px}
+  #bottom-bar{padding:10px 12px}
+  #reset-btn{right:10px;bottom:86px}
+}
 </style>
 </head>
 <body>
 
-<!-- Drop zone / file picker -->
 <div id="drop-zone">
-  <div class="dz-icon">⬡</div>
+  <div class="dz-icon">PLY</div>
   <div class="dz-title">4D PLY Viewer</div>
-  <div class="dz-sub">Tái tạo không gian 4 chiều</div>
-  <button class="pick-btn" onclick="document.getElementById('file-input').click()">
-    📂 Chọn các file .PLY
-  </button>
+  <div class="dz-sub">
+    Ban host ca folder nay len web la viewer co the tu nap chuoi frame tu <code>mesh_seq/</code>.
+    Neu mo file local hoac host khong cho truy cap file, ban van co the chon tay cac file <code>.ply</code>.
+  </div>
+  <div class="btn-row">
+    <button class="pick-btn" id="auto-load-btn" onclick="loadBundledFrames()">Auto load mesh_seq</button>
+    <button class="pick-btn" onclick="document.getElementById('file-input').click()">Chon file .PLY thu cong</button>
+  </div>
   <input id="file-input" type="file" accept=".ply" multiple style="display:none" onchange="handleFiles(this.files)">
-  <div class="dz-note">
-    Chọn toàn bộ chuỗi file .ply cùng lúc — viewer sẽ tự sắp xếp theo tên và phát animation 4D.<br>
-    Hỗ trợ: binary little-endian PLY · Mesh + Point cloud
+  <div class="dz-note" id="startup-note">
+    Goi y cho Canva: Canva thuong khong embed duoc trang web tuy y. Cach on dinh nhat la dat preview trong Canva va gan link mo viewer o tab ngoai.
   </div>
 </div>
 
-<!-- Loading -->
 <div id="loading">
-  <h3>⬡ ĐANG XỬ LÝ PLY</h3>
+  <h3>DANG XU LY PLY</h3>
   <div class="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
-  <div id="load-status">Chuẩn bị...</div>
+  <div id="load-status">Dang chuan bi...</div>
 </div>
 
-<!-- 3D Viewer -->
 <div id="viewer">
   <canvas id="canvas"></canvas>
 
   <div id="hud-top">
-    <strong id="hud-name">—</strong><br>
+    <strong id="hud-name">-</strong><br>
     Frame <strong id="hud-fi">0</strong> / <strong id="hud-fn">0</strong><br>
-    Vertices: <strong id="hud-v">—</strong> · Faces: <strong id="hud-f">—</strong>
+    Vertices: <strong id="hud-v">-</strong> · Faces: <strong id="hud-f">-</strong>
   </div>
 
   <div id="render-panel">
@@ -124,29 +212,32 @@ canvas{display:block;width:100%;height:100%}
   <div id="bottom-bar">
     <div class="bar-row">
       <div class="frame-label" id="frame-label">frame 000000</div>
-      <input type="range" id="scrub" min="0" max="0" value="0" oninput="scrubFrame(parseInt(this.value))">
+      <input type="range" id="scrub" min="0" max="0" value="0" oninput="scrubFrame(parseInt(this.value, 10))">
     </div>
     <div class="bar-row">
-      <button class="btn" onclick="stepFrame(-1)">◀</button>
-      <button class="btn on" id="btn-play" onclick="togglePlay()">⏸ Pause</button>
-      <button class="btn" onclick="stepFrame(1)">▶</button>
+      <button class="btn" onclick="stepFrame(-1)">Prev</button>
+      <button class="btn on" id="btn-play" onclick="togglePlay()">Pause</button>
+      <button class="btn" onclick="stepFrame(1)">Next</button>
       <div class="fps-row" style="margin-left:8px">
         Speed:
-        <input type="range" id="fps-slider" min="1" max="24" value="8" oninput="setFps(parseInt(this.value))">
+        <input type="range" id="fps-slider" min="1" max="24" value="8" oninput="setFps(parseInt(this.value, 10))">
         <span id="fps-val">8 fps</span>
       </div>
-      <button class="btn" style="margin-left:auto" onclick="resetCam()">⟳ Reset</button>
+      <button class="btn" style="margin-left:auto" onclick="resetCam()">Reset</button>
     </div>
   </div>
 
-  <button id="reset-btn" onclick="document.getElementById('drop-zone').style.display='flex';document.getElementById('viewer').style.display='none';frames=[];currentFrame=0;">
-    ← Chọn lại
-  </button>
+  <button id="reset-btn" onclick="resetViewer()">Back</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ── State ───────────────────────────────────────────────────────────────
+const BUNDLED_FRAME_COUNT = 398;
+const BUNDLED_FRAME_FILES = Array.from(
+  { length: BUNDLED_FRAME_COUNT },
+  (_, i) => `mesh_seq/${String(i).padStart(6, '0')}.ply`
+);
+
 let frames = [];
 let currentFrame = 0;
 let playing = true;
@@ -154,9 +245,10 @@ let fps = 8;
 let lastTick = 0;
 let renderMode = 'mesh';
 let colorMode = 'depth';
-let meshObj = null, wireObj = null;
+let meshObj = null;
+let wireObj = null;
+let animationStarted = false;
 
-// ── Three.js setup ──────────────────────────────────────────────────────
 const canvas = document.getElementById('canvas');
 let renderer, scene, camera;
 
@@ -173,127 +265,173 @@ function initThree() {
   const amb = new THREE.AmbientLight(0x334477, 1.4);
   scene.add(amb);
   const d1 = new THREE.DirectionalLight(0x7799ff, 2.2);
-  d1.position.set(120, 200, 150); scene.add(d1);
+  d1.position.set(120, 200, 150);
+  scene.add(d1);
   const d2 = new THREE.DirectionalLight(0xff8866, 0.7);
-  d2.position.set(-150, 50, -100); scene.add(d2);
+  d2.position.set(-150, 50, -100);
+  scene.add(d2);
 
   window.addEventListener('resize', onResize);
   onResize();
 }
 
 function onResize() {
-  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (!renderer) return;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
   renderer.setSize(w, h, false);
-  if (camera) { camera.aspect = w / h; camera.updateProjectionMatrix(); }
+  if (camera) {
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
 }
 
-// ── Orbit control (manual) ─────────────────────────────────────────────
 let drag = false, px = 0, py = 0;
 let rotX = 0.2, rotY = 0, zoom = 350;
 
 canvas.addEventListener('mousedown', e => { drag = true; px = e.clientX; py = e.clientY; });
-window.addEventListener('mouseup', () => drag = false);
+window.addEventListener('mouseup', () => { drag = false; });
 window.addEventListener('mousemove', e => {
   if (!drag) return;
-  rotY += (e.clientX - px) * 0.009; rotX += (e.clientY - py) * 0.009;
+  rotY += (e.clientX - px) * 0.009;
+  rotX += (e.clientY - py) * 0.009;
   rotX = Math.max(-1.5, Math.min(1.5, rotX));
-  px = e.clientX; py = e.clientY;
+  px = e.clientX;
+  py = e.clientY;
 });
 canvas.addEventListener('wheel', e => {
-  zoom += e.deltaY * 0.25; zoom = Math.max(60, Math.min(800, zoom));
+  zoom += e.deltaY * 0.25;
+  zoom = Math.max(60, Math.min(800, zoom));
 });
-canvas.addEventListener('touchstart', e => { drag = true; px = e.touches[0].clientX; py = e.touches[0].clientY; }, { passive: true });
-canvas.addEventListener('touchend', () => drag = false);
+canvas.addEventListener('touchstart', e => {
+  drag = true;
+  px = e.touches[0].clientX;
+  py = e.touches[0].clientY;
+}, { passive: true });
+canvas.addEventListener('touchend', () => { drag = false; });
 canvas.addEventListener('touchmove', e => {
   if (!drag) return;
-  rotY += (e.touches[0].clientX - px) * 0.009; rotX += (e.touches[0].clientY - py) * 0.009;
-  px = e.touches[0].clientX; py = e.touches[0].clientY;
+  rotY += (e.touches[0].clientX - px) * 0.009;
+  rotX += (e.touches[0].clientY - py) * 0.009;
+  rotX = Math.max(-1.5, Math.min(1.5, rotX));
+  px = e.touches[0].clientX;
+  py = e.touches[0].clientY;
 }, { passive: true });
 
-function resetCam() { rotX = 0.2; rotY = 0; zoom = 350; }
+function resetCam() {
+  rotX = 0.2;
+  rotY = 0;
+  zoom = 350;
+}
 
-// ── PLY Parser ─────────────────────────────────────────────────────────
 function parsePLY(buffer) {
   const data = new Uint8Array(buffer);
   let pos = 0;
+
   function readLine() {
     let s = '';
-    while (pos < data.length && data[pos] !== 10) { s += String.fromCharCode(data[pos++]); }
+    while (pos < data.length && data[pos] !== 10) s += String.fromCharCode(data[pos++]);
     pos++;
     return s.trim();
   }
-  let nVerts = 0, nFaces = 0, binary = false, littleEndian = true;
-  let props = [];
+
+  let nVerts = 0;
+  let nFaces = 0;
+  let littleEndian = true;
+  const props = [];
+
   while (true) {
     const line = readLine();
-    if (line.startsWith('format binary_little_endian')) { binary = true; littleEndian = true; }
-    else if (line.startsWith('format binary_big_endian')) { binary = true; littleEndian = false; }
-    else if (line.startsWith('element vertex')) nVerts = parseInt(line.split(' ')[2]);
-    else if (line.startsWith('element face')) nFaces = parseInt(line.split(' ')[2]);
+    if (line.startsWith('format binary_little_endian')) littleEndian = true;
+    else if (line.startsWith('format binary_big_endian')) littleEndian = false;
+    else if (line.startsWith('element vertex')) nVerts = parseInt(line.split(' ')[2], 10);
+    else if (line.startsWith('element face')) nFaces = parseInt(line.split(' ')[2], 10);
     else if (line.startsWith('property float')) props.push(line.split(' ')[2]);
     if (line === 'end_header') break;
   }
+
   const strideBytes = props.length * 4;
   const view = new DataView(buffer, pos);
   let vPos = 0;
   const positions = new Float32Array(nVerts * 3);
-  const xi = props.indexOf('x'), yi = props.indexOf('y'), zi = props.indexOf('z');
+  const xi = props.indexOf('x');
+  const yi = props.indexOf('y');
+  const zi = props.indexOf('z');
+
   for (let i = 0; i < nVerts; i++) {
-    positions[i * 3]     = view.getFloat32(vPos + xi * 4, littleEndian);
+    positions[i * 3] = view.getFloat32(vPos + xi * 4, littleEndian);
     positions[i * 3 + 1] = view.getFloat32(vPos + yi * 4, littleEndian);
     positions[i * 3 + 2] = view.getFloat32(vPos + zi * 4, littleEndian);
     vPos += strideBytes;
   }
+
   const indices = [];
   for (let i = 0; i < nFaces; i++) {
-    const cnt = view.getUint8(vPos); vPos += 1;
-    const a = view.getInt32(vPos, littleEndian), b = view.getInt32(vPos + 4, littleEndian), c = view.getInt32(vPos + 8, littleEndian);
+    const cnt = view.getUint8(vPos);
+    vPos += 1;
+    const a = view.getInt32(vPos, littleEndian);
+    const b = view.getInt32(vPos + 4, littleEndian);
+    const c = view.getInt32(vPos + 8, littleEndian);
     vPos += cnt * 4;
     indices.push(a, b, c);
   }
+
   return { positions, indices, nVerts, nFaces };
 }
 
-// ── Color maps ─────────────────────────────────────────────────────────
 function applyColorMap(geo, mode) {
   const pos = geo.attributes.position.array;
   const n = pos.length / 3;
   const colors = new Float32Array(n * 3);
+
   if (mode === 'depth') {
-    let minZ = Infinity, maxZ = -Infinity;
-    for (let i = 0; i < n; i++) { const z = pos[i*3+2]; if(z<minZ)minZ=z; if(z>maxZ)maxZ=z; }
+    let minZ = Infinity;
+    let maxZ = -Infinity;
+    for (let i = 0; i < n; i++) {
+      const z = pos[i * 3 + 2];
+      if (z < minZ) minZ = z;
+      if (z > maxZ) maxZ = z;
+    }
     const rng = maxZ - minZ || 1;
     for (let i = 0; i < n; i++) {
-      const t = (pos[i*3+2] - minZ) / rng;
-      // Blue → Cyan → Green → Yellow → Red
+      const t = (pos[i * 3 + 2] - minZ) / rng;
       const r = t < 0.5 ? t * 2 * 0.2 : 0.2 + (t - 0.5) * 2 * 0.8;
       const g = t < 0.5 ? t * 2 * 0.7 : 0.7 - (t - 0.5) * 2 * 0.4;
       const b = t < 0.5 ? 0.9 - t * 2 * 0.8 : 0.1;
-      colors[i*3] = r; colors[i*3+1] = g; colors[i*3+2] = b;
+      colors[i * 3] = r;
+      colors[i * 3 + 1] = g;
+      colors[i * 3 + 2] = b;
     }
   } else if (mode === 'normal') {
     const norm = geo.attributes.normal ? geo.attributes.normal.array : null;
     for (let i = 0; i < n; i++) {
       if (norm) {
-        colors[i*3]   = Math.abs(norm[i*3]) * 0.8 + 0.2;
-        colors[i*3+1] = Math.abs(norm[i*3+1]) * 0.7 + 0.15;
-        colors[i*3+2] = Math.abs(norm[i*3+2]) * 0.9 + 0.1;
-      } else { colors[i*3]=0.4;colors[i*3+1]=0.6;colors[i*3+2]=0.9; }
+        colors[i * 3] = Math.abs(norm[i * 3]) * 0.8 + 0.2;
+        colors[i * 3 + 1] = Math.abs(norm[i * 3 + 1]) * 0.7 + 0.15;
+        colors[i * 3 + 2] = Math.abs(norm[i * 3 + 2]) * 0.9 + 0.1;
+      } else {
+        colors[i * 3] = 0.4;
+        colors[i * 3 + 1] = 0.6;
+        colors[i * 3 + 2] = 0.9;
+      }
     }
   } else {
-    for (let i = 0; i < n; i++) { colors[i*3]=0.35;colors[i*3+1]=0.5;colors[i*3+2]=0.85; }
+    for (let i = 0; i < n; i++) {
+      colors[i * 3] = 0.35;
+      colors[i * 3 + 1] = 0.5;
+      colors[i * 3 + 2] = 0.85;
+    }
   }
+
   geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 }
 
-// ── Build Three.js objects ─────────────────────────────────────────────
 function buildMeshObjects(frameData) {
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(frameData.positions.slice(), 3));
   geo.setIndex(frameData.indices);
   geo.computeVertexNormals();
 
-  // Center
   geo.computeBoundingBox();
   const box = geo.boundingBox;
   const cx = (box.max.x + box.min.x) / 2;
@@ -304,11 +442,18 @@ function buildMeshObjects(frameData) {
   applyColorMap(geo, colorMode);
 
   const meshMat = new THREE.MeshPhongMaterial({
-    vertexColors: true, side: THREE.DoubleSide,
-    transparent: true, opacity: 0.92, shininess: 50, specular: new THREE.Color(0x445599)
+    vertexColors: true,
+    side: THREE.DoubleSide,
+    transparent: true,
+    opacity: 0.92,
+    shininess: 50,
+    specular: new THREE.Color(0x445599)
   });
   const wireMat = new THREE.MeshBasicMaterial({
-    color: 0x4466ff, wireframe: true, transparent: true, opacity: 0.13
+    color: 0x4466ff,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.13
   });
 
   const mesh = new THREE.Mesh(geo, meshMat);
@@ -317,19 +462,34 @@ function buildMeshObjects(frameData) {
   return { mesh, wire };
 }
 
-// ── Set frame ─────────────────────────────────────────────────────────
+function clearCurrentObjects() {
+  if (meshObj) {
+    scene.remove(meshObj);
+    meshObj.geometry.dispose();
+    meshObj.material.dispose();
+    meshObj = null;
+  }
+  if (wireObj) {
+    scene.remove(wireObj);
+    wireObj.geometry.dispose();
+    wireObj.material.dispose();
+    wireObj = null;
+  }
+}
+
 function setFrame(idx) {
-  if (meshObj) { scene.remove(meshObj); meshObj.geometry.dispose(); meshObj.material.dispose(); }
-  if (wireObj) { scene.remove(wireObj); wireObj.geometry.dispose(); wireObj.material.dispose(); }
+  clearCurrentObjects();
 
   const f = frames[idx];
-  const { mesh, wire } = buildMeshObjects(f.parsed);
+  const built = buildMeshObjects(f.parsed);
+  meshObj = built.mesh;
+  wireObj = built.wire;
 
-  mesh.visible = renderMode === 'mesh' || renderMode === 'both';
-  wire.visible = renderMode === 'wire' || renderMode === 'both';
+  meshObj.visible = renderMode === 'mesh' || renderMode === 'both';
+  wireObj.visible = renderMode === 'wire' || renderMode === 'both';
 
-  scene.add(mesh); scene.add(wire);
-  meshObj = mesh; wireObj = wire;
+  scene.add(meshObj);
+  scene.add(wireObj);
 
   currentFrame = idx;
   document.getElementById('scrub').value = idx;
@@ -341,14 +501,13 @@ function setFrame(idx) {
   document.getElementById('hud-f').textContent = (f.parsed.indices.length / 3).toLocaleString();
 }
 
-// ── Animation loop ─────────────────────────────────────────────────────
 let flickT = 0;
 function animate(t) {
   requestAnimationFrame(animate);
   flickT += 0.025;
 
-  if (meshObj) { meshObj.material.opacity = 0.88 + Math.sin(flickT) * 0.06 + Math.sin(flickT * 2.1) * 0.03; }
-  if (wireObj) { wireObj.material.opacity = 0.10 + Math.sin(flickT * 1.4) * 0.04; }
+  if (meshObj) meshObj.material.opacity = 0.88 + Math.sin(flickT) * 0.06 + Math.sin(flickT * 2.1) * 0.03;
+  if (wireObj) wireObj.material.opacity = 0.10 + Math.sin(flickT * 1.4) * 0.04;
 
   if (playing && frames.length > 1 && t - lastTick > 1000 / fps) {
     setFrame((currentFrame + 1) % frames.length);
@@ -363,21 +522,46 @@ function animate(t) {
   renderer.render(scene, camera);
 }
 
-// ── UI helpers ────────────────────────────────────────────────────────
+function startViewer() {
+  if (!renderer) initThree();
+  const scrub = document.getElementById('scrub');
+  scrub.max = frames.length - 1;
+  scrub.value = 0;
+  setFrame(0);
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('viewer').style.display = 'block';
+  onResize();
+  if (!animationStarted) {
+    animationStarted = true;
+    requestAnimationFrame(animate);
+  }
+}
+
 function togglePlay() {
   playing = !playing;
   const btn = document.getElementById('btn-play');
-  btn.textContent = playing ? '⏸ Pause' : '▶ Play';
+  btn.textContent = playing ? 'Pause' : 'Play';
   btn.classList.toggle('on', playing);
 }
+
 function stepFrame(d) {
   playing = false;
-  document.getElementById('btn-play').textContent = '▶ Play';
+  document.getElementById('btn-play').textContent = 'Play';
   document.getElementById('btn-play').classList.remove('on');
   setFrame((currentFrame + d + frames.length) % frames.length);
 }
-function scrubFrame(v) { playing = false; document.getElementById('btn-play').textContent = '▶ Play'; document.getElementById('btn-play').classList.remove('on'); setFrame(v); }
-function setFps(v) { fps = v; document.getElementById('fps-val').textContent = v + ' fps'; }
+
+function scrubFrame(v) {
+  playing = false;
+  document.getElementById('btn-play').textContent = 'Play';
+  document.getElementById('btn-play').classList.remove('on');
+  setFrame(v);
+}
+
+function setFps(v) {
+  fps = v;
+  document.getElementById('fps-val').textContent = v + ' fps';
+}
 
 function setRender(mode) {
   renderMode = mode;
@@ -386,55 +570,107 @@ function setRender(mode) {
   document.querySelectorAll('#render-panel .rb').forEach(b => b.classList.remove('on'));
   document.getElementById('rb-' + mode).classList.add('on');
 }
+
 function setColor(mode) {
   colorMode = mode;
-  document.querySelectorAll('#render-panel .rb').forEach(b => { if(['cm-depth','cm-normal','cm-flat'].includes(b.id)) b.classList.remove('on'); });
+  ['cm-depth', 'cm-normal', 'cm-flat'].forEach(id => document.getElementById(id).classList.remove('on'));
   document.getElementById('cm-' + mode).classList.add('on');
   if (frames.length) setFrame(currentFrame);
 }
 
-// ── File loading ───────────────────────────────────────────────────────
+function showLoading(message) {
+  document.getElementById('drop-zone').style.display = 'none';
+  document.getElementById('viewer').style.display = 'none';
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('load-status').textContent = message;
+  document.getElementById('prog-bar').style.width = '0%';
+}
+
+function setLoadProgress(current, total, message) {
+  document.getElementById('prog-bar').style.width = `${(current / total) * 100}%`;
+  document.getElementById('load-status').textContent = message;
+}
+
+async function loadFrameBuffers(items, loader) {
+  frames = [];
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    setLoadProgress(i, items.length, `Dang doc ${item.name} (${i + 1}/${items.length})`);
+    const buf = await loader(item, i);
+    const parsed = parsePLY(buf);
+    const baseName = item.name.replace(/\.ply$/i, '');
+    frames.push({ name: baseName, parsed });
+    await new Promise(r => setTimeout(r, 0));
+  }
+  document.getElementById('prog-bar').style.width = '100%';
+}
+
 async function handleFiles(fileList) {
   const files = Array.from(fileList)
-    .filter(f => f.name.endsWith('.ply'))
+    .filter(f => f.name.toLowerCase().endsWith('.ply'))
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-  if (!files.length) return alert('Không tìm thấy file .ply nào!');
-
-  document.getElementById('drop-zone').style.display = 'none';
-  document.getElementById('loading').style.display = 'flex';
-
-  const prog = document.getElementById('prog-bar');
-  const status = document.getElementById('load-status');
-
-  frames = [];
-  for (let i = 0; i < files.length; i++) {
-    const f = files[i];
-    status.textContent = `Đang đọc: ${f.name} (${i + 1}/${files.length})`;
-    prog.style.width = ((i / files.length) * 100) + '%';
-    const buf = await f.arrayBuffer();
-    const parsed = parsePLY(buf);
-    const baseName = f.name.replace(/\.ply$/i, '');
-    frames.push({ name: baseName, parsed });
-    await new Promise(r => setTimeout(r, 0)); // yield to UI
+  if (!files.length) {
+    alert('Khong tim thay file .ply nao.');
+    return;
   }
 
-  prog.style.width = '100%';
-  status.textContent = `Đã load ${frames.length} frames — đang khởi tạo renderer...`;
-  await new Promise(r => setTimeout(r, 80));
-
-  if (!renderer) initThree();
-
-  const scrub = document.getElementById('scrub');
-  scrub.max = frames.length - 1;
-  scrub.value = 0;
-
-  setFrame(0);
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('viewer').style.display = 'block';
-  onResize();
-  requestAnimationFrame(animate);
+  try {
+    showLoading('Dang nap file PLY tu may cua ban...');
+    await loadFrameBuffers(files, file => file.arrayBuffer());
+    document.getElementById('load-status').textContent = `Da load ${frames.length} frames. Dang khoi tao renderer...`;
+    await new Promise(r => setTimeout(r, 80));
+    startViewer();
+  } catch (err) {
+    console.error(err);
+    resetViewer();
+    alert('Khong the doc cac file PLY da chon.');
+  }
 }
+
+async function loadBundledFrames() {
+  try {
+    showLoading('Dang nap mesh_seq tu server...');
+    const items = BUNDLED_FRAME_FILES.map(path => ({
+      path,
+      name: path.split('/').pop()
+    }));
+
+    await loadFrameBuffers(items, async item => {
+      const response = await fetch(item.path);
+      if (!response.ok) throw new Error(`Cannot fetch ${item.path}: ${response.status}`);
+      return response.arrayBuffer();
+    });
+
+    document.getElementById('load-status').textContent = `Da load ${frames.length} frames tu mesh_seq. Dang khoi tao renderer...`;
+    await new Promise(r => setTimeout(r, 80));
+    startViewer();
+  } catch (err) {
+    console.error(err);
+    resetViewer();
+    document.getElementById('startup-note').textContent =
+      'Auto load that bai. Neu dang host web, hay kiem tra folder mesh_seq co nam cung cap voi file HTML va server cho phep truy cap .ply.';
+    alert('Auto load mesh_seq that bai. Ban van co the dung nut chon file thu cong.');
+  }
+}
+
+function resetViewer() {
+  frames = [];
+  currentFrame = 0;
+  playing = true;
+  lastTick = 0;
+  document.getElementById('btn-play').textContent = 'Pause';
+  document.getElementById('btn-play').classList.add('on');
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('viewer').style.display = 'none';
+  document.getElementById('drop-zone').style.display = 'flex';
+  if (scene) clearCurrentObjects();
+}
+
+window.addEventListener('load', () => {
+  const isHttp = location.protocol === 'http:' || location.protocol === 'https:';
+  if (isHttp) loadBundledFrames();
+});
 </script>
 </body>
 </html>
